@@ -42,7 +42,8 @@ class MyApp extends ConsumerWidget {
     final counter = ref.read(counterProvider.notifier);
     return MaterialApp(
       home: Scaffold(
-        appBar: AppBar(title: const Text('AnimatedBuilder example')),
+        appBar:
+            AppBar(title: const Text('Riverpod Counter using StateProvider')),
         body: const CounterBody(),
         floatingActionButton: FloatingActionButton(
           onPressed: () => counter.state++,
