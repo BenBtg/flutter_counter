@@ -1,15 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 
-final counterProvider =
-    StateNotifierProvider<CounterNotifier, int>((ref) => CounterNotifier());
-
-class CounterNotifier extends StateNotifier<int> {
-  CounterNotifier() : super(0);
-
-  void increment() => state++;
-  void decrement() => state--;
-}
+final counterProvider = StateProvider<int>((ref) => 0);
 
 class CounterBody extends StatelessWidget {
   const CounterBody({Key? key}) : super(key: key);
@@ -19,8 +11,8 @@ class CounterBody extends StatelessWidget {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          const Text('Current counter value:'),
+        children: const [
+          Text('Current counter value:'),
           Counter(),
         ],
       ),
@@ -33,14 +25,18 @@ class Counter extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    return Text(
-      '${ref.watch(counterProvider)}',
-      style: Theme.of(context).textTheme.headline4,
+    return RepaintBoundary(
+      child: Text(
+        '${ref.watch(counterProvider)}',
+        style: Theme.of(context).textTheme.headline4,
+      ),
     );
   }
 }
 
 class MyApp extends ConsumerWidget {
+  const MyApp({Key? key}) : super(key: key);
+
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final counter = ref.read(counterProvider.notifier);
@@ -49,7 +45,7 @@ class MyApp extends ConsumerWidget {
         appBar: AppBar(title: const Text('AnimatedBuilder example')),
         body: const CounterBody(),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => counter.increment(),
+          onPressed: () => counter.state++,
           child: const Icon(Icons.add),
         ),
       ),
@@ -58,5 +54,5 @@ class MyApp extends ConsumerWidget {
 }
 
 void main() {
-  runApp(ProviderScope(child: MyApp()));
+  runApp(const ProviderScope(child: MyApp()));
 }
