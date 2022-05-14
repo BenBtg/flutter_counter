@@ -1,53 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+
+final counterProvider =
+    StateNotifierProvider<CounterNotifier, int>((ref) => CounterNotifier());
+
+class CounterNotifier extends StateNotifier<int> {
+  CounterNotifier() : super(0);
+
+  void increment() => state++;
+  void decrement() => state--;
+}
 
 class CounterBody extends StatelessWidget {
-  const CounterBody({Key? key, required this.counterValueNotifier})
-      : super(key: key);
-
-  final ValueNotifier<int> counterValueNotifier;
+  const CounterBody({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {
     return Center(
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
-        children: <Widget>[
+        children: [
           const Text('Current counter value:'),
-          // Thanks to the [AnimatedBuilder], only the widget displaying the
-          // current count is rebuilt when `counterValueNotifier` notifies its
-          // listeners. The [Text] widget above and [CounterBody] itself aren't
-          // rebuilt.
-          AnimatedBuilder(
-            // [AnimatedBuilder] accepts any [Listenable] subtype.
-            animation: counterValueNotifier,
-            builder: (BuildContext context, Widget? child) {
-              return Text('${counterValueNotifier.value}');
-            },
-          ),
+          Counter(),
         ],
       ),
     );
   }
 }
 
-class MyApp extends StatefulWidget {
-  const MyApp({Key? key}) : super(key: key);
+class Counter extends ConsumerWidget {
+  const Counter({Key? key}) : super(key: key);
 
   @override
-  State<MyApp> createState() => _MyAppState();
+  Widget build(BuildContext context, WidgetRef ref) {
+    return Text(
+      '${ref.watch(counterProvider)}',
+      style: Theme.of(context).textTheme.headline4,
+    );
+  }
 }
 
-class _MyAppState extends State<MyApp> {
-  final ValueNotifier<int> _counter = ValueNotifier<int>(0);
-
+class MyApp extends ConsumerWidget {
   @override
-  Widget build(BuildContext context) {
+  Widget build(BuildContext context, WidgetRef ref) {
+    final counter = ref.read(counterProvider.notifier);
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(title: const Text('AnimatedBuilder example')),
-        body: CounterBody(counterValueNotifier: _counter),
+        body: const CounterBody(),
         floatingActionButton: FloatingActionButton(
-          onPressed: () => _counter.value++,
+          onPressed: () => counter.increment(),
           child: const Icon(Icons.add),
         ),
       ),
@@ -56,5 +58,5 @@ class _MyAppState extends State<MyApp> {
 }
 
 void main() {
-  runApp(const MyApp());
+  runApp(ProviderScope(child: MyApp()));
 }
